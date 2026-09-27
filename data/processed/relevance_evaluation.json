@@ -1,0 +1,87 @@
+{
+  "questions": 10,
+  "average_relevance": 1.0,
+  "relevant_questions": 10,
+  "results": [
+    {
+      "id": "q1",
+      "question": "How are tasks created?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer directly explains the process of task creation, covering the endpoint, input model, ID generation, storage, counter increment, and response.",
+      "answer": "Tasks are created by the **`create_task`** endpoint defined in **`routes.py`** (lines\u202f12\u201127).\n\n1. **Input** \u2013 The function receives a `Task` instance (`task: Task`).  \n   The `Task` model (see **`models.py`**\u202flines\u202f4\u201111) requires `title`, `description`, `priority` (must be \u201clow\u201d, \u201cmedium\u201d or \u201chigh\u201d), and optionally `status` (defaults to \u201cpending\u201d).\n\n2. **ID generation** \u2013  \n   ```python\n   global next_task_id\n   task_id = next_task_id\n   ```  \n   The current value of the global counter `next_task_id` is used as the new task\u2019s ID.\n\n3. **Storage** \u2013  \n   ```python\n   tasks[task_id] = {\n       \"id\": task_id,\n       **task.model_dump()\n   }\n   ```  \n   The task\u2019s fields are extracted with `task.model_dump()` (a Pydantic method that returns a dict of the model\u2019s data).  \n   A new entry is added to the global `tasks` dictionary, keyed by the generated `task_id` and containing the `id` plus all model fields.\n\n4. **Counter increment** \u2013  \n   ```python\n   next_task_id += 1\n   ```  \n   The global counter is incremented so the next call gets a unique ID.\n\n5. **Response** \u2013 The function returns a JSON\u2011serializable dict with a success message and the newly stored task data.\n\nIn summary, a task is created by calling `create_task` with a valid `Task` object; the function assigns a unique ID, stores the task\u2019s data in the global `tasks` dict, updates the ID counter, and returns the created task. No other files are involved in the creation logic."
+    },
+    {
+      "id": "q2",
+      "question": "Which function deletes a task?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The assistant directly identifies the function that deletes a task, provides its name, location, and relevant code, fully answering the question.",
+      "answer": "The function that removes a task from the in\u2011memory store is **`delete_task`** defined in **`routes.py`** (lines\u202f105\u2011117).\n\n```python\n# routes.py:105\u2011117\ndef delete_task(task_id: int):\n    if task_id not in tasks:\n        raise HTTPException(\n            status_code=404,\n            detail=\"Task not found\"\n        )\n\n    deleted_task = tasks.pop(task_id)   # \u2190 removes the entry\n\n    return {\n        \"message\": \"Task deleted successfully\",\n        \"task\": deleted_task\n    }\n```\n\n* It checks that the given `task_id` exists in the `tasks` dictionary.\n* If found, it calls `tasks.pop(task_id)`, which deletes the entry and returns the removed task data.\n* It then returns a confirmation message and the deleted task."
+    },
+    {
+      "id": "q3",
+      "question": "Which functions use the Task model?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer directly lists the functions that use the Task model, fulfilling the user's request.",
+      "answer": "The **Task** model is referenced directly in two route\u2011handler functions:\n\n| Function | File & Lines | How it uses **Task** |\n|----------|--------------|----------------------|\n| `create_task` | `routes.py`\u202flines\u202f12\u201127 | The `task` parameter is typed as `Task`; the function calls `task.model_dump()` to convert the model into a dict before storing it. |\n| `update_task` | `routes.py`\u202flines\u202f86\u2011101 | The `task` parameter is also typed as `Task`; the function again uses `task.model_dump()` to update the stored task data. |\n\nNo other functions in the provided snippets reference the `Task` model."
+    },
+    {
+      "id": "q4",
+      "question": "What validates task input?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer directly states that the Task Pydantic model validates task input and explains how it works, fully addressing the question.",
+      "answer": "The input is validated by the **`Task` Pydantic model** defined in **`models.py`**.\n\n* **File:** `models.py` \u2013 lines\u202f4\u201111  \n```python\nclass Task(BaseModel):\n    title: str = Field(..., min_length=1)\n    description: str = Field(..., min_length=1)\n    priority: str = Field(..., pattern=\"^(low|medium|high)$\")\n    status: str = Field(\n        default=\"pending\",\n        pattern=\"^(pending|in-progress|completed)$\"\n    )\n```\n\n* The model inherits from `BaseModel`, so when FastAPI (or any code) creates a `Task` instance, Pydantic automatically checks:\n  * `title` and `description` are present and have at least one character (`min_length=1`).\n  * `priority` matches the regex `^(low|medium|high)$`.\n  * `status` (defaulting to `\"pending\"` if omitted) matches the regex `^(pending|in-progress|completed)$`.\n\n* Both route handlers that accept task data \u2013 **`create_task`** (`routes.py` lines\u202f12\u201127) and **`update_task`** (`routes.py` lines\u202f86\u2011101) \u2013 declare a parameter of type `Task`. The creation of this `Task` instance triggers the validation described above.\n\nTherefore, **the `Task` model in `models.py` is what validates task input**. No other validation logic is shown in the provided code."
+    },
+    {
+      "id": "q5",
+      "question": "How are tasks searched?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer directly explains how tasks are searched, provides the relevant code and a clear description of its behavior.",
+      "answer": "**Search implementation**\n\nThe repository provides a dedicated function **`search_tasks`** in **`routes.py`** (lines\u202f56\u201169) that performs the keyword search.\n\n```python\ndef search_tasks(keyword: str):\n    results = []\n\n    for task in tasks.values():\n        if (\n            keyword.lower() in task[\"title\"].lower()\n            or keyword.lower() in task[\"description\"].lower()\n        ):\n            results.append(task)\n\n    return {\n        \"keyword\": keyword,\n        \"results\": results\n    }\n```\n\n**How it works**\n\n1. **Iterate over all stored tasks** \u2013 `tasks.values()` returns each task dictionary (the `tasks` mapping is defined elsewhere in the module).  \n2. **Case\u2011insensitive matching** \u2013 the supplied `keyword` is converted to lower\u2011case and compared against the lower\u2011cased `title` **or** `description` fields of each task.  \n3. **Collect matches** \u2013 any task where the keyword appears in either field is appended to the `results` list.  \n4. **Return payload** \u2013 a dictionary containing the original `keyword` and the list of matching `results` is returned.\n\nThus, tasks are searched by performing a simple linear scan of all tasks and checking whether the search term occurs (case\u2011insensitively) in the task\u2019s title or description. No additional indexing, database queries, or external libraries are used in the shown code."
+    },
+    {
+      "id": "q6",
+      "question": "How does task updating work?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer explains the task updating process, includes the relevant code snippet, and describes the step-by-step behavior, directly addressing the user's question.",
+      "answer": "**How task updating works**\n\nThe update logic is implemented in `routes.py` (lines\u202f86\u2011101) in the function `update_task`:\n\n```python\ndef update_task(task_id: int, task: Task):\n    if task_id not in tasks:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n    tasks[task_id] = {\n        \"id\": task_id,\n        **task.model_dump()\n    }\n    return {\n        \"message\": \"Task updated successfully\",\n        \"task\": tasks[task_id]\n    }\n```\n\n**Step\u2011by\u2011step flow**\n\n1. **Existence check** \u2013 The function first verifies that the supplied `task_id` exists in the in\u2011memory `tasks` dictionary.  \n   *If the key is missing, it raises an `HTTPException` with status\u202f404 (see lines\u202f88\u201192).*\n\n2. **Create the updated record** \u2013 When the task is found, a new dictionary is built:\n   * The `\"id\"` field is set to the original `task_id`.\n   * All other fields are taken from the incoming `Task` Pydantic model via `task.model_dump()` (line\u202f96).  \n   This overwrites the previous entry completely; any fields not provided in the `Task` model are not retained (the model requires all fields, so a full replacement occurs).\n\n3. **Store the updated task** \u2013 The new dictionary replaces the old entry in `tasks` (line\u202f96).\n\n4. **Response** \u2013 The function returns a JSON\u2011serializable dict containing a success message and the updated task data (lines\u202f98\u2011101).\n\n**Related pieces**\n\n* The `Task` model (`models.py` lines\u202f4\u201111) defines the required fields (`title`, `description`, `priority`, `status`) and validation rules, so only a valid `Task` instance can be passed to `update_task`.\n* The same `tasks` store is used by other route handlers (`create_task`, `get_task`, `get_tasks`), so the update is immediately visible to subsequent reads.\n\nIn summary, updating a task checks that the task exists, replaces its stored dictionary with a fresh one built from the supplied `Task` object while preserving the original `id`, and returns a confirmation along with the updated data. No partial updates or merge logic are present in the shown code."
+    },
+    {
+      "id": "q7",
+      "question": "How are all tasks retrieved?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer directly explains how all tasks are retrieved via the get_tasks function, detailing the logic and code involved.",
+      "answer": "All tasks are fetched by the **`get_tasks`** function.\n\n* **File:** `routes.py` (lines\u202f31\u201152)  \n* **Logic:**  \n\n1. It starts with the full collection of stored tasks:  \n\n   ```python\n   results = list(tasks.values())\n   ```  \n\n   (`tasks` is the global dictionary that holds every task object; each value is a task dict.)\n\n2. If a **`status`** query parameter is supplied, it filters the list to keep only tasks whose `\"status\"` (case\u2011insensitive) matches the requested value.  \n\n3. If a **`priority`** query parameter is supplied, it further filters the list to keep only tasks whose `\"priority\"` (case\u2011insensitive) matches the requested value.\n\n4. Finally it returns a dictionary containing the total count and the (possibly filtered) list of task dictionaries:\n\n   ```python\n   return {\n       \"count\": len(results),\n       \"tasks\": results\n   }\n   ```\n\nThus, retrieving \u201call tasks\u201d simply means converting `tasks.values()` to a list; optional `status` or `priority` arguments narrow the result set, but without them the function returns every task stored in the `tasks` dictionary."
+    },
+    {
+      "id": "q8",
+      "question": "How does the API handle a missing task?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer directly explains that missing tasks trigger a 404 HTTPException and provides the relevant code checks, fully addressing the question.",
+      "answer": "The API treats a request for a **non\u2011existent task** as an error and returns an HTTP\u202f404 response.\n\n* **`get_task`** (routes.py\u202flines\u202f73\u201182)  \n  ```python\n  if task_id not in tasks:\n      raise HTTPException(status_code=404, detail=\"Task not found\")\n  ```  \n  If the requested `task_id` is not present in the in\u2011memory `tasks` dictionary, a `HTTPException` with **status\u202fcode\u202f404** and the detail *\u201cTask not found\u201d* is raised.\n\n* **`delete_task`** (routes.py\u202flines\u202f105\u2011117)  \n  The same guard is used before attempting to delete:\n  ```python\n  if task_id not in tasks:\n      raise HTTPException(status_code=404, detail=\"Task not found\")\n  ```\n  A missing task again triggers a 404 error.\n\n* **`update_task`** (routes.py\u202flines\u202f86\u2011101)  \n  The update endpoint also checks for existence first:\n  ```python\n  if task_id not in tasks:\n      raise HTTPException(status_code=404, detail=\"Task not found\")\n  ```\n  When the task does not exist, it raises the identical 404 `HTTPException`.\n\nTherefore, for any of the read, delete, or update operations, the API **detects a missing task by checking `task_id not in tasks` and responds with a 404 \u201cTask not found\u201d error**. No other behavior for missing tasks is shown in the provided code."
+    },
+    {
+      "id": "q9",
+      "question": "What fields are required by the Task model?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer explicitly lists the required fields of the Task model, directly addressing the question.",
+      "answer": "The **Task** model is defined in **`models.py`** (lines\u202f4\u201111). Its fields are declared with Pydantic\u2019s `Field`:\n\n```python\nclass Task(BaseModel):\n    title: str = Field(..., min_length=1)          # required\n    description: str = Field(..., min_length=1)    # required\n    priority: str = Field(..., pattern=\"^(low|medium|high)$\")  # required\n    status: str = Field(\n        default=\"pending\",\n        pattern=\"^(pending|in-progress|completed)$\"\n    )                                               # optional (has a default)\n```\n\n**Required fields** (those using `Field(... )` with no default) are:\n\n1. **`title`** \u2013 must be a non\u2011empty string (`min_length=1`).\n2. **`description`** \u2013 must be a non\u2011empty string (`min_length=1`).\n3. **`priority`** \u2013 must match the regex `^(low|medium|high)$`.\n\nThe **`status`** field is optional because it provides a default value (`\"pending\"`)."
+    },
+    {
+      "id": "q10",
+      "question": "What happens when a task is updated and how is the input validated?",
+      "relevant": true,
+      "score": 1.0,
+      "reason": "The answer explains the update process (existence check, replacement, response) and details how input validation is performed via the Pydantic model, directly addressing both parts of the question.",
+      "answer": "**What the endpoint does**\n\n*File `routes.py`, lines\u202f86\u2011101*  \n\n```python\ndef update_task(task_id: int, task: Task):\n    if task_id not in tasks:\n        raise HTTPException(status_code=404, detail=\"Task not found\")\n\n    tasks[task_id] = {\n        \"id\": task_id,\n        **task.model_dump()\n    }\n\n    return {\n        \"message\": \"Task updated successfully\",\n        \"task\": tasks[task_id]\n    }\n```\n\n1. **Existence check** \u2013 The function first looks for `task_id` in the in\u2011memory `tasks` dict.  \n   * If the id is missing it raises `HTTPException(404, \"Task not found\")`.  \n\n2. **Replace the stored data** \u2013 When the id exists, the entry is overwritten with a new dictionary that:\n   * keeps the original `id`,\n   * merges all fields from the incoming `task` object (`task.model_dump()`).\n\n3. **Response** \u2013 Returns a JSON object containing a success message and the newly\u2011stored task data.\n\n**How the input is validated**\n\n*File `models.py`, lines\u202f4\u201111* defines the Pydantic model used for the `task` parameter:\n\n```python\nclass Task(BaseModel):\n    title: str = Field(..., min_length=1)\n    description: str = Field(..., min_length=1)\n    priority: str = Field(..., pattern=\"^(low|medium|high)$\")\n    status: str = Field(\n        default=\"pending\",\n        pattern=\"^(pending|in-progress|completed)$\"\n    )\n```\n\nWhen a request reaches `update_task`, FastAPI (the framework implied by the use of `HTTPException` and `BaseModel`) first tries to create a `Task` instance from the request body. During this construction:\n\n* `title` and `description` must be present and contain at least one character (`min_length=1`).  \n* `priority` must match the regex `^(low|medium|high)$`.  \n* `status` defaults to `\"pending\"` if omitted, but if supplied it must match `^(pending|in-progress|completed)$`.\n\nIf any of these constraints fail, Pydantic raises a validation error, and FastAPI returns a **422 Unprocessable Entity** response before `update_task` is executed.\n\n**Summary**\n\n- The endpoint first checks that the task exists, then overwrites the stored entry with the validated fields from the `Task` model and returns a success payload.  \n- Input validation is performed automatically by the `Task` Pydantic model, enforcing non\u2011empty strings for `title`/`description`, limiting `priority` to *low/medium/high*, and restricting `status` to the allowed statuses."
+    }
+  ]
+}

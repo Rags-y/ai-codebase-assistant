@@ -1,0 +1,207 @@
+{
+  "questions": 10,
+  "top_k": 5,
+  "average_recall": 0.9666666666666666,
+  "average_precision": 0.28,
+  "results": [
+    {
+      "id": "q1",
+      "question": "How are tasks created?",
+      "expected": [
+        "create_task"
+      ],
+      "retrieved": [
+        "Task",
+        "create_task",
+        "get_task",
+        "get_tasks",
+        "delete_task"
+      ],
+      "matched": [
+        "create_task"
+      ],
+      "recall": 1.0,
+      "precision": 0.2
+    },
+    {
+      "id": "q2",
+      "question": "Which function deletes a task?",
+      "expected": [
+        "delete_task"
+      ],
+      "retrieved": [
+        "Task",
+        "delete_task",
+        "get_task",
+        "get_tasks",
+        "home"
+      ],
+      "matched": [
+        "delete_task"
+      ],
+      "recall": 1.0,
+      "precision": 0.2
+    },
+    {
+      "id": "q3",
+      "question": "Which functions use the Task model?",
+      "expected": [
+        "Task",
+        "create_task",
+        "update_task"
+      ],
+      "retrieved": [
+        "Task",
+        "get_tasks",
+        "create_task",
+        "get_task",
+        "home"
+      ],
+      "matched": [
+        "Task",
+        "create_task"
+      ],
+      "recall": 0.6666666666666666,
+      "precision": 0.4
+    },
+    {
+      "id": "q4",
+      "question": "What validates task input?",
+      "expected": [
+        "Task"
+      ],
+      "retrieved": [
+        "Task",
+        "get_task",
+        "get_tasks",
+        "update_task",
+        "home"
+      ],
+      "matched": [
+        "Task"
+      ],
+      "recall": 1.0,
+      "precision": 0.2
+    },
+    {
+      "id": "q5",
+      "question": "How are tasks searched?",
+      "expected": [
+        "search_tasks"
+      ],
+      "retrieved": [
+        "Task",
+        "search_tasks",
+        "get_tasks",
+        "get_task",
+        "create_task"
+      ],
+      "matched": [
+        "search_tasks"
+      ],
+      "recall": 1.0,
+      "precision": 0.2
+    },
+    {
+      "id": "q6",
+      "question": "How does task updating work?",
+      "expected": [
+        "update_task"
+      ],
+      "retrieved": [
+        "Task",
+        "update_task",
+        "get_task",
+        "get_tasks",
+        "delete_task"
+      ],
+      "matched": [
+        "update_task"
+      ],
+      "recall": 1.0,
+      "precision": 0.2
+    },
+    {
+      "id": "q7",
+      "question": "How are all tasks retrieved?",
+      "expected": [
+        "get_tasks"
+      ],
+      "retrieved": [
+        "Task",
+        "get_tasks",
+        "get_task",
+        "create_task",
+        "search_tasks"
+      ],
+      "matched": [
+        "get_tasks"
+      ],
+      "recall": 1.0,
+      "precision": 0.2
+    },
+    {
+      "id": "q8",
+      "question": "How does the API handle a missing task?",
+      "expected": [
+        "delete_task",
+        "get_task",
+        "update_task"
+      ],
+      "retrieved": [
+        "Task",
+        "get_task",
+        "delete_task",
+        "update_task",
+        "module_context"
+      ],
+      "matched": [
+        "delete_task",
+        "get_task",
+        "update_task"
+      ],
+      "recall": 1.0,
+      "precision": 0.6
+    },
+    {
+      "id": "q9",
+      "question": "What fields are required by the Task model?",
+      "expected": [
+        "Task"
+      ],
+      "retrieved": [
+        "Task",
+        "create_task",
+        "update_task",
+        "get_task",
+        "get_tasks"
+      ],
+      "matched": [
+        "Task"
+      ],
+      "recall": 1.0,
+      "precision": 0.2
+    },
+    {
+      "id": "q10",
+      "question": "What happens when a task is updated and how is the input validated?",
+      "expected": [
+        "Task",
+        "update_task"
+      ],
+      "retrieved": [
+        "Task",
+        "update_task",
+        "get_task",
+        "delete_task",
+        "create_task"
+      ],
+      "matched": [
+        "Task",
+        "update_task"
+      ],
+      "recall": 1.0,
+      "precision": 0.4
+    }
+  ]
+}

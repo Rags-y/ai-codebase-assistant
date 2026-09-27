@@ -1,0 +1,112 @@
+[
+  {
+    "id": "q1",
+    "question": "How are tasks created?",
+    "expected_chunks": ["create_task"],
+    "expected_concepts": [
+      "create_task",
+      "next_task_id",
+      "tasks",
+      "model_dump"
+    ]
+  },
+  {
+    "id": "q2",
+    "question": "Which function deletes a task?",
+    "expected_chunks": ["delete_task"],
+    "expected_concepts": [
+      "delete_task",
+      "tasks.pop",
+      "404",
+      "Task not found"
+    ]
+  },
+  {
+    "id": "q3",
+    "question": "Which functions use the Task model?",
+    "expected_chunks": ["Task", "create_task", "update_task"],
+    "expected_concepts": [
+      "create_task",
+      "update_task",
+      "Task"
+    ]
+  },
+  {
+    "id": "q4",
+    "question": "What validates task input?",
+    "expected_chunks": ["Task"],
+    "expected_concepts": [
+      "Pydantic",
+      "Task",
+      "Field",
+      "validation"
+    ]
+  },
+  {
+    "id": "q5",
+    "question": "How are tasks searched?",
+    "expected_chunks": ["search_tasks"],
+    "expected_concepts": [
+      "search_tasks",
+      "query",
+      "tasks"
+    ]
+  },
+  {
+    "id": "q6",
+    "question": "How does task updating work?",
+    "expected_chunks": ["update_task"],
+    "expected_concepts": [
+      "update_task",
+      "task_id",
+      "tasks",
+      "model_dump"
+    ]
+  },
+  {
+    "id": "q7",
+    "question": "How are all tasks retrieved?",
+    "expected_chunks": ["get_tasks"],
+    "expected_concepts": [
+      "get_tasks",
+      "tasks"
+    ]
+  },
+  {
+    "id": "q8",
+    "question": "How does the API handle a missing task?",
+    "expected_chunks": [
+      "delete_task",
+      "get_task",
+      "update_task"
+    ],
+    "expected_concepts": [
+      "404",
+      "Task not found",
+      "HTTPException"
+    ]
+  },
+  {
+    "id": "q9",
+    "question": "What fields are required by the Task model?",
+    "expected_chunks": ["Task"],
+    "expected_concepts": [
+      "title",
+      "description",
+      "priority",
+      "status"
+    ]
+  },
+  {
+    "id": "q10",
+    "question": "What happens when a task is updated and how is the input validated?",
+    "expected_chunks": ["Task", "update_task"],
+    "expected_concepts": [
+      "update_task",
+      "Task",
+      "Pydantic",
+      "validation",
+      "model_dump"
+    ]
+  }
+]

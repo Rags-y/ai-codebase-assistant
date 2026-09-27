@@ -1,0 +1,12 @@
+[
+  {
+    "source_id": "routes.py:create_task:12-27",
+    "target_id": "models.py:Task:4-11",
+    "relationship": "uses"
+  },
+  {
+    "source_id": "routes.py:update_task:86-101",
+    "target_id": "models.py:Task:4-11",
+    "relationship": "uses"
+  }
+]
